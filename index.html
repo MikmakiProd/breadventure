@@ -86,6 +86,7 @@
   img{-webkit-user-drag:none;user-drag:none}
 
   #cam{position:absolute;top:0;left:0;width:100%;height:100dvh;height:100vh;object-fit:cover;object-position:center;z-index:0;background:#000}
+  #cam.mirror{transform:scaleX(-1)}
   body.no-cam #cam{display:none}
   body.no-cam{background:
     radial-gradient(120% 90% at 50% 18%, #FBF8F1 0%, var(--paper) 55%, var(--paper2) 100%)}
@@ -124,6 +125,14 @@
     font-size:14.5px;display:flex;gap:10px;align-items:center;font-family:var(--sans);font-weight:500}
   #langMenu button .flg{font-size:15px}
   #langMenu button.sel{background:var(--amber-soft);color:var(--amber);font-weight:700}
+
+  /* selfie / flip-camera button (top-left, snap mode only) */
+  #flipCam{position:fixed;top:calc(13px + var(--safe-t));left:13px;z-index:30;border:1px solid var(--line2);
+    background:rgba(251,248,241,.82);backdrop-filter:blur(8px);color:var(--ink);border-radius:50%;
+    width:40px;height:40px;display:none;align-items:center;justify-content:center}
+  #flipCam.on{display:flex}
+  #flipCam:active{transform:scale(.92)}
+  #flipCam svg{width:21px;height:21px;display:block}
 
   /* start overlay */
   #startOverlay{position:absolute;top:0;left:0;width:100%;height:100dvh;height:100vh;z-index:60;
@@ -320,6 +329,14 @@
 
   <button id="langBtn"><span class="globe"></span><span id="langCur">EN</span></button>
   <div id="langMenu"></div>
+  <button id="flipCam" aria-label="selfie">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 8.6A1.6 1.6 0 0 1 5.6 7h1.9L9 5.4h6L16.5 7h1.9A1.6 1.6 0 0 1 20 8.6v7.9A1.6 1.6 0 0 1 18.4 18H5.6A1.6 1.6 0 0 1 4 16.5Z"/>
+      <path d="M9.6 12.4a2.5 2.5 0 0 1 4.2-1.8l1 .9"/>
+      <path d="M14.4 12.6a2.5 2.5 0 0 1-4.2 1.8l-1-.9"/>
+      <path d="M14.8 9.2v2.2h-2.2M9.2 15.8v-2.2h2.2"/>
+    </svg>
+  </button>
 
   <!-- Start overlay -->
   <div id="startOverlay">
@@ -490,14 +507,25 @@
 
   /* ---------------- camera ---------------- */
   const video = $('cam');
-  async function startCamera(){
-    const tries=[{video:{facingMode:{ideal:'environment'}},audio:false},{video:true,audio:false}];
-    for(const c of tries){
-      try{ const s=await navigator.mediaDevices.getUserMedia(c); video.srcObject=s; await video.play(); return; }
-      catch(e){}
+  let facing = 'environment';
+  async function applyCamera(){
+    if(video.srcObject){ try{ video.srcObject.getTracks().forEach(t=>t.stop()); }catch(e){} }
+    const primary = facing==='user'
+      ? { video:{ facingMode:{ ideal:'user' } }, audio:false }
+      : { video:{ facingMode:{ ideal:'environment' } }, audio:false };
+    for(const c of [primary, { video:true, audio:false }]){
+      try{
+        const s = await navigator.mediaDevices.getUserMedia(c);
+        video.srcObject = s; await video.play();
+        document.body.classList.remove('no-cam');
+        video.classList.toggle('mirror', facing==='user');
+        return;
+      }catch(e){}
     }
     document.body.classList.add('no-cam');
   }
+  function flipCamera(){ facing = (facing==='user') ? 'environment' : 'user'; applyCamera(); }
+  $('flipCam').addEventListener('click', flipCamera);
 
   /* ---------------- boot ---------------- */
   $('startBtn').addEventListener('click', boot);
@@ -505,7 +533,7 @@
     document.body.classList.add('started');
     $('startOverlay').classList.add('hidden');
     try{ document.fonts.load('400 40px Pacifico'); document.fonts.load('600 30px Cormorant'); }catch(e){}
-    await startCamera();
+    await applyCamera();
   }
 
   /* ---------------- language ---------------- */
@@ -644,6 +672,7 @@
     $('filterBar').classList.add('on');
     $('tabbar').classList.add('hide');
     $('fxLayer').classList.add('active');
+    $('flipCam').classList.add('on');
     setActiveTab('snap');
     syncLiveName();
     try{ if(!localStorage.getItem('bv_snap_intro')){ showSnapIntro(); localStorage.setItem('bv_snap_intro','1'); } }catch(e){}
@@ -659,6 +688,7 @@
     $('fxHint').classList.remove('on');
     $('liveName').classList.remove('on');
     $('liveLogo').classList.remove('on');
+    $('flipCam').classList.remove('on');
     if($('tabbar')&&!Object.values(sheets).some(s=>s.classList.contains('open'))) setActiveTab(null);
   }
   $('filterClose').addEventListener('click', exitPhoto);
@@ -836,10 +866,16 @@
     const cv=document.createElement('canvas'); cv.width=W; cv.height=H;
     const cx=cv.getContext('2d');
 
-    // camera cover-cropped to 4:5
+    // camera cover-cropped to 4:5 (mirrored for the front/selfie camera)
     if(video.videoWidth){
       const vw=video.videoWidth, vh=video.videoHeight, s=Math.max(W/vw,H/vh);
-      const dw=vw*s, dh=vh*s; cx.drawImage(video,(W-dw)/2,(H-dh)/2,dw,dh);
+      const dw=vw*s, dh=vh*s;
+      if(facing==='user'){
+        cx.save(); cx.translate(W,0); cx.scale(-1,1);
+        cx.drawImage(video,(W-dw)/2,(H-dh)/2,dw,dh); cx.restore();
+      } else {
+        cx.drawImage(video,(W-dw)/2,(H-dh)/2,dw,dh);
+      }
     } else {
       const g=cx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#FBF8F1'); g.addColorStop(1,'#EFE6D4');
       cx.fillStyle=g; cx.fillRect(0,0,W,H);

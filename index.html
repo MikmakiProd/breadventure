@@ -112,7 +112,7 @@
 
   /* language button */
   #langBtn{position:fixed;top:calc(13px + var(--safe-t));right:13px;z-index:30;border:1px solid var(--line2);
-    background:rgba(251,248,241,.82);backdrop-filter:blur(8px);color:var(--ink);border-radius:22px;
+    background:rgba(251,248,241,.82);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:var(--ink);border-radius:22px;
     padding:8px 13px;font-size:12.5px;font-weight:600;letter-spacing:.06em;display:flex;align-items:center;gap:7px;
     font-family:var(--sans)}
   #langBtn .globe{width:15px;height:15px;display:block;color:var(--amber)}
@@ -128,7 +128,7 @@
 
   /* selfie / flip-camera button (top-left, snap mode only) */
   #flipCam{position:fixed;top:calc(13px + var(--safe-t));left:13px;z-index:30;border:1px solid var(--line2);
-    background:rgba(251,248,241,.82);backdrop-filter:blur(8px);color:var(--ink);border-radius:50%;
+    background:rgba(251,248,241,.82);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:var(--ink);border-radius:50%;
     width:40px;height:40px;display:none;align-items:center;justify-content:center}
   #flipCam.on{display:flex}
   #flipCam:active{transform:scale(.92)}
@@ -230,22 +230,24 @@
 
   /* Snap filter bar */
   #filterBar{position:fixed;left:0;right:0;bottom:0;z-index:44;padding:12px 0 calc(12px + var(--safe-b));
-    background:linear-gradient(180deg,rgba(36,28,18,0),rgba(36,28,18,.5) 24%,rgba(36,28,18,.82) 60%);
-    backdrop-filter:blur(9px);display:none;flex-direction:column;gap:11px}
+    background:none;display:none;flex-direction:column;gap:11px}
   #filterBar.on{display:flex}
   #nameRow{display:flex;align-items:center;gap:9px;padding:0 14px}
-  #nameInput{flex:1;min-width:0;border:1px solid rgba(246,239,226,.35);background:rgba(246,239,226,.12);
+  #nameInput{flex:1;min-width:0;border:1px solid rgba(246,239,226,.30);background:rgba(36,28,18,.34);
+    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
     color:var(--paper);border-radius:22px;padding:11px 16px;font-size:14px;font-family:var(--fun);letter-spacing:.02em}
   #nameInput::placeholder{color:rgba(246,239,226,.55);font-family:var(--sans);letter-spacing:0}
-  #clearBtn{flex:0 0 auto;border:1px solid rgba(246,239,226,.35);background:rgba(246,239,226,.10);color:var(--paper);
+  #clearBtn{flex:0 0 auto;border:1px solid rgba(246,239,226,.30);background:rgba(36,28,18,.34);color:var(--paper);
+    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
     border-radius:22px;padding:11px 15px;font-size:12.5px;font-weight:600;letter-spacing:.04em}
   #filterStrip{display:flex;gap:8px;overflow-x:auto;padding:2px 14px 4px;-webkit-overflow-scrolling:touch;align-items:flex-end}
   #filterStrip::-webkit-scrollbar{display:none}
   .fgroup{display:flex;flex-direction:column;gap:6px;flex:0 0 auto}
-  .fgroup .glabel{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(246,239,226,.62);padding-left:2px}
+  .fgroup .glabel{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(246,239,226,.92);padding-left:2px;text-shadow:0 1px 3px rgba(0,0,0,.7)}
   .fgroup .grow{display:flex;gap:8px}
   .fchip{flex:0 0 auto;width:58px;height:58px;border-radius:16px;border:2px solid transparent;
-    background:rgba(246,239,226,.14);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:6px}
+    background:rgba(36,28,18,.30);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;padding:6px}
   .fchip img{max-width:100%;max-height:100%;object-fit:contain;display:block}
   .fchip .fx{width:30px;height:30px;color:var(--paper)}
   .fchip .fx svg{width:100%;height:100%;display:block}
@@ -255,8 +257,8 @@
   #snapBtn{flex:1;border:0;border-radius:40px;padding:16px;font-size:16px;font-weight:800;letter-spacing:.08em;
     color:var(--ink);background:var(--paper)}
   #snapBtn:active{transform:scale(.97)}
-  #filterClose{border:1px solid rgba(246,239,226,.35);border-radius:40px;width:52px;height:52px;font-size:19px;
-    color:var(--paper);background:rgba(246,239,226,.10)}
+  #filterClose{border:1px solid rgba(246,239,226,.30);border-radius:40px;width:52px;height:52px;font-size:19px;
+    color:var(--paper);background:rgba(36,28,18,.34);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 
   /* tab bar */
   #tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:grid;grid-template-columns:repeat(4,1fr);
